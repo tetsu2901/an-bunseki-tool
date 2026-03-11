@@ -34,6 +34,48 @@ AREA_ORDER_STANDARD = [
 
 RANK_ORDER = ['SB', 'A', 'B', 'C']
 
+# エリアごとの放送局表示順（標準）
+STATION_ORDER_BY_AREA = {
+    '関東': ['NTV', 'TBS', 'CXT', 'EX', 'TX'],
+    '関西': ['YTV', 'MBS', 'KTV', 'ABC', 'TVO'],
+    '名古屋': ['CTV', 'CBC', 'THK', 'NBN', 'TVA'],
+    '福岡': ['FBS', 'RKB', 'TNC', 'KBC', 'TVQ'],
+    '北海道': ['STV', 'HBC', 'UHB', 'HTB', 'TVH'],
+    '青森': ['RAB', 'ATV', 'ABA'],
+    '岩手': ['IBC', 'TVI', 'MIT', 'IAT'],
+    '秋田': ['ABS', 'AKT', 'AAB'],
+    '山形': ['YBC', 'YTS', 'TUY', 'SAY'],
+    '仙台': ['TBC', 'OXT', 'MMT', 'KHB'],
+    '福島': ['FTV', 'FCT', 'KFB', 'TUF'],
+    '新潟': ['BSN', 'NST', 'TNY', 'UX'],
+    '長野': ['SBC', 'NBS', 'TSB', 'ABN'],
+    '静岡': ['SBS', 'SUT', 'SAT', 'SDT'],
+    '富山': ['KNB', 'BBT', 'TUT'],
+    '石川': ['MRO', 'ITC', 'KTK', 'HAB'],
+    '福井': ['FBC', 'FTB'],
+    '鳥・島': ['BSS', 'NKT', 'TSK'],
+    '広島': ['RCC', 'HTV', 'HOM', 'TSS'],
+    '山口': ['KRY', 'TYS', 'YAB'],
+    '岡・香': ['RSK', 'OHK', 'TSC', 'RNC', 'KSB'],
+    '愛媛': ['RNB', 'EBC', 'ITV', 'EAT'],
+    '高知': ['RKC', 'KUT', 'KSS'],
+    '佐賀': ['STS'],
+    '長崎': ['NBC', 'KTN', 'NCC', 'NIB'],
+    '熊本': ['RKK', 'TKU', 'KKT', 'KAB'],
+    '大分': ['OBS', 'TOS', 'OAB'],
+    '宮崎': ['MRT', 'UMK'],
+    '鹿児島': ['MBC', 'KTS', 'KKB', 'KYT'],
+    '沖縄': ['RBC', 'OTV', 'QAB'],
+}
+
+
+def sort_stations(area, station_dict):
+    """エリアに応じた標準順で局をソートし、未知の局は末尾に追加する。"""
+    order = STATION_ORDER_BY_AREA.get(area, [])
+    known = [s for s in order if s in station_dict]
+    unknown = [s for s in station_dict if s not in order]
+    return known + sorted(unknown)
+
 # ========== スタイル ==========
 
 TITLE_FONT = Font(bold=True, size=14)
@@ -294,7 +336,7 @@ def write_sheet_prime_ratio(wb, area_order, est_all_name, agg):
 
         stations = agg['area_station_total'][area]
         a_total = a_prime = 0
-        for station in sorted(stations.keys(), key=lambda s: -stations[s]):
+        for station in sort_stations(area, stations):
             total = stations[station]
             prime = agg['area_station_prime'][area].get(station, 0)
             pct = prime / total if total > 0 else 0
